@@ -12,7 +12,7 @@ RUN echo "PLUGINS = ['netbox_bgp']" > /opt/netbox/netbox/netbox/plugins.py
 
 # 3. 运行静态文件收集（这步能防止某些插件在前端找不到图标/样式）
 RUN DEBUG="true" SECRET_KEY="dummydummydummydummydummydummydummydummydummydummy" \
-    /usr/local/bin/uv run /opt/netbox/netbox/manage.py collectstatic --no-input
+    /usr/local/bin/uv run --active /opt/netbox/netbox/manage.py collectstatic --no-input
 
 # 4. 切回运行用户
 USER unit
