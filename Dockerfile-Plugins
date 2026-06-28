@@ -1,0 +1,18 @@
+FROM netboxcommunity/netbox:v4.6
+
+USER root
+
+# 1. 拷贝并安装插件
+COPY ./plugin_requirements.txt /opt/netbox/
+RUN /usr/local/bin/uv pip install --no-cache-dir -r /opt/netbox/plugin_requirements.txt
+
+# 2. 模拟配置以通过 collectstatic 的检查
+# 社区很多新版插件的静态文件已经可以自动加载，但为了保险，在云端生成默认占位配置
+RUN echo "PLUGINS = ['netbox_bgp']" > /opt/netbox/netbox/netbox/plugins.py
+
+# 3. 运行静态文件收集（这步能防止某些插件在前端找不到图标/样式）
+RUN DEBUG="true" SECRET_KEY="dummydummydummydummydummydummydummydummydummydummy" \
+    /usr/local/bin/uv run /opt/netbox/netbox/manage.py collectstatic --no-input
+
+# 4. 切回运行用户
+USER unit
